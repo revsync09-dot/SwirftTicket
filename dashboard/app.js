@@ -1,3 +1,5 @@
+const API_BASE = '';
+
 const actions = {
   startAuth() {
     document.querySelector('#auth')?.scrollIntoView({ behavior: 'smooth' });
@@ -8,49 +10,32 @@ const actions = {
   inviteBot() {
     alert('Invite flow will be handled by your backend.');
   },
-  addCategory() {
-    const list = document.querySelector('#categoryList');
-    if (!list) return;
-    const row = document.createElement('div');
-    row.className = 'category-row';
-    row.innerHTML = `
-      <input class="input-emoji" type="text" value="*" />
-      <input class="input-name" type="text" value="New Category" />
-      <button class="color-dot" style="background:#7c5cff"></button>
-      <button class="icon-btn" data-action="remove-category">x</button>
-    `;
-    list.appendChild(row);
-  },
-  removeCategory(target) {
-    const row = target.closest('.category-row');
-    if (row) row.remove();
-  },
-  reset() {
-    document.querySelector('#toast')?.classList.add('hidden');
-    alert('Reset is a UI-only demo.');
-  },
-  save() {
-    const toast = document.querySelector('#toast');
-    if (!toast) return;
-    toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 1500);
-  },
 };
+
+async function apiGet(path) {
+  const res = await fetch(`${API_BASE}${path}`);
+  if (!res.ok) throw new Error('Request failed');
+  return res.json();
+}
+
+async function apiPost(path, body) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}),
+  });
+  if (!res.ok) throw new Error('Request failed');
+  return res.json();
+}
 
 async function loadDashboard() {
   try {
-    const res = await fetch('http://localhost:8080/dashboard-data');
-    if (!res.ok) return;
-    const data = await res.json();
+    const data = await apiGet('/api/dashboard-data');
     const botTag = document.querySelector('#botTag');
     const statServers = document.querySelector('#statServers');
     const statLatency = document.querySelector('#statLatency');
     const statUptime = document.querySelector('#statUptime');
     const selectedGuild = document.querySelector('#selectedGuild');
-    const staffRole = document.querySelector('#staffRole');
-    const staffCount = document.querySelector('#staffCount');
-    const statOpen = document.querySelector('#statOpen');
-    const statClosed = document.querySelector('#statClosed');
     const inviteBtn = document.querySelector('#inviteBtn');
     const categoryList = document.querySelector('#categoryList');
     const serverGrid = document.querySelector('#serverGrid');
@@ -58,12 +43,8 @@ async function loadDashboard() {
     if (botTag) botTag.textContent = data.botTag ?? 'SwiftTickets';
     if (statServers) statServers.textContent = String(data.guilds?.length ?? 0);
     if (statLatency) statLatency.textContent = `${data.latencyMs ?? 0}ms`;
-    if (statUptime) statUptime.textContent = data.uptime ?? '0h';
+    if (statUptime) statUptime.textContent = data.uptime ?? 'online';
     if (selectedGuild) selectedGuild.textContent = data.selectedGuild ?? 'None';
-    if (staffRole) staffRole.textContent = data.staffRoleId ?? 'Not set';
-    if (staffCount) staffCount.textContent = String(data.staffCount ?? 0);
-    if (statOpen) statOpen.textContent = String(data.stats?.open ?? 0);
-    if (statClosed) statClosed.textContent = String(data.stats?.closed ?? 0);
     if (inviteBtn && data.inviteUrl) inviteBtn.href = data.inviteUrl;
 
     if (categoryList) {
@@ -79,54 +60,92 @@ async function loadDashboard() {
     if (serverGrid) {
       serverGrid.innerHTML = '';
       (data.guilds ?? []).forEach((g) => {
+        const installed = g.status === 'installed';
         const card = document.createElement('article');
-        card.className = `server-card ${g.id === data.selectedGuild ? 'active' : ''}`;
+        card.className = `server-card ${installed ? 'active' : ''}`;
         card.innerHTML = `
           <div class="server-icon ${g.iconURL ? '' : 'mute'}">${g.name?.[0] ?? 'S'}</div>
           <div class="server-info">
-            <h3>${g.name}</h3>
-            <p>Bot installed - ${g.memberCount ?? 0} members</p>
+            <div class="server-header">
+              <h3>${g.name}</h3>
+              <span class="status-badge ${installed ? 'online' : 'offline'}">
+                ${installed ? 'Installed' : 'Invite'}
+              </span>
+            </div>
+            <p>${installed ? 'SwiftTickets is live in this server.' : 'Invite SwiftTickets to manage this server.'}</p>
             <div class="card-actions">
-              <button class="chip-btn" data-guild="${g.id}">Manage</button>
-              <a class="chip-btn ghost" href="setup.html">Open setup</a>
+              ${installed ? `<a class="chip-btn" href="/select/${g.id}">Manage</a>` : `<a class="chip-btn" href="/invite/${g.id}">Invite</a>`}
             </div>
           </div>
         `;
-        card.querySelector('button')?.addEventListener('click', () => {
-          loadDashboardForGuild(g.id);
-        });
         serverGrid.appendChild(card);
       });
+    }
+
+    if (data.selectedGuild && data.settings) {
+      hydrateSettings(data.selectedGuild, data.settings);
     }
   } catch (_) {}
 }
 
-async function loadDashboardForGuild(guildId) {
-  try {
-    const res = await fetch(`http://localhost:8080/dashboard-data?guild_id=${guildId}`);
-    if (!res.ok) return;
-    const data = await res.json();
-    const selectedGuild = document.querySelector('#selectedGuild');
-    const staffRole = document.querySelector('#staffRole');
-    const staffCount = document.querySelector('#staffCount');
-    const statOpen = document.querySelector('#statOpen');
-    const statClosed = document.querySelector('#statClosed');
-    const categoryList = document.querySelector('#categoryList');
-    if (selectedGuild) selectedGuild.textContent = data.selectedGuild ?? 'None';
-    if (staffRole) staffRole.textContent = data.staffRoleId ?? 'Not set';
-    if (staffCount) staffCount.textContent = String(data.staffCount ?? 0);
-    if (statOpen) statOpen.textContent = String(data.stats?.open ?? 0);
-    if (statClosed) statClosed.textContent = String(data.stats?.closed ?? 0);
-    if (categoryList) {
-      categoryList.innerHTML = '';
-      (data.categories ?? []).forEach((c) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.textContent = c.name;
-        categoryList.appendChild(chip);
-      });
-    }
-  } catch (_) {}
+function hydrateSettings(guildId, settings) {
+  const parentCategoryId = document.querySelector('#parentCategoryId');
+  const staffRoleId = document.querySelector('#staffRoleId');
+  const timezone = document.querySelector('#timezone');
+  const categorySlots = document.querySelector('#categorySlots');
+  const warnThreshold = document.querySelector('#warnThreshold');
+  const warnTimeout = document.querySelector('#warnTimeout');
+  const toggleSmart = document.querySelector('#toggleSmart');
+  const toggleAi = document.querySelector('#toggleAi');
+  const togglePriority = document.querySelector('#togglePriority');
+
+  if (parentCategoryId) parentCategoryId.value = settings.ticket_parent_channel_id ?? '';
+  if (staffRoleId) staffRoleId.value = settings.staff_role_id ?? '';
+  if (timezone) timezone.value = settings.timezone ?? 'UTC';
+  if (categorySlots) categorySlots.value = settings.category_slots ?? 1;
+  if (warnThreshold) warnThreshold.value = settings.warn_threshold ?? 3;
+  if (warnTimeout) warnTimeout.value = settings.warn_timeout_minutes ?? 10;
+  if (toggleSmart) toggleSmart.checked = Boolean(settings.enable_smart_replies ?? true);
+  if (toggleAi) toggleAi.checked = Boolean(settings.enable_ai_suggestions ?? true);
+  if (togglePriority) togglePriority.checked = Boolean(settings.enable_auto_priority ?? true);
+}
+
+async function saveSettings() {
+  const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
+  if (!selectedGuild || selectedGuild === 'None') return;
+  const payload = {
+    guild_id: selectedGuild,
+    ticket_parent_channel_id: document.querySelector('#parentCategoryId')?.value,
+    staff_role_id: document.querySelector('#staffRoleId')?.value,
+    timezone: document.querySelector('#timezone')?.value,
+    category_slots: document.querySelector('#categorySlots')?.value,
+    warn_threshold: document.querySelector('#warnThreshold')?.value,
+    warn_timeout_minutes: document.querySelector('#warnTimeout')?.value,
+    enable_smart_replies: document.querySelector('#toggleSmart')?.checked,
+    enable_ai_suggestions: document.querySelector('#toggleAi')?.checked,
+    enable_auto_priority: document.querySelector('#togglePriority')?.checked,
+  };
+  await apiPost('/api/settings', payload);
+}
+
+async function addCategory() {
+  const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
+  const name = document.querySelector('#newCategoryName')?.value;
+  const description = document.querySelector('#newCategoryDescription')?.value;
+  if (!selectedGuild || selectedGuild === 'None' || !name) return;
+  await apiPost('/api/categories', { guild_id: selectedGuild, name, description });
+  await loadDashboard();
+}
+
+async function postPanel(kind) {
+  const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
+  const channelId = document.querySelector('#panelChannelId')?.value;
+  if (!selectedGuild || selectedGuild === 'None' || !channelId) return;
+  if (kind === 'settings') {
+    await apiPost('/api/post-panel', { guild_id: selectedGuild, channel_id: channelId });
+  } else {
+    await apiPost('/api/post-panelset', { guild_id: selectedGuild, channel_id: channelId });
+  }
 }
 
 loadDashboard();
@@ -139,10 +158,12 @@ document.addEventListener('click', (event) => {
   if (action === 'start-auth') return actions.startAuth();
   if (action === 'scroll-settings') return actions.scrollSettings();
   if (action === 'invite-bot') return actions.inviteBot();
-  if (action === 'add-category') return actions.addCategory();
-  if (action === 'remove-category') return actions.removeCategory(target);
-  if (action === 'reset') return actions.reset();
-  if (action === 'save') return actions.save();
 });
 
 document.querySelector('#reloadBtn')?.addEventListener('click', () => loadDashboard());
+document.querySelector('#saveSettingsBtn')?.addEventListener('click', () => saveSettings());
+document.querySelector('#addCategoryBtn')?.addEventListener('click', () => addCategory());
+document.querySelector('#postPanelBtn')?.addEventListener('click', () => postPanel('settings'));
+document.querySelector('#postPublicPanelBtn')?.addEventListener('click', () => postPanel('public'));
+document.querySelector('#postPanelToChannelBtn')?.addEventListener('click', () => postPanel('settings'));
+document.querySelector('#postPanelsetToChannelBtn')?.addEventListener('click', () => postPanel('public'));
