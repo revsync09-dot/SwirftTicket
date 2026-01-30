@@ -4,52 +4,42 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SwiftTickets - Servers</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body>
+  <body class="servers-body">
     <div class="bg-glow"></div>
     <div class="noise"></div>
 
-    <div class="app">
-      <header class="topbar">
-        <div class="profile">
-          <div class="avatar" id="botAvatar">ST</div>
+    <main class="servers-layout">
+      <header class="servers-header">
+        <div class="brand">
+          <img src="/assets/logo.svg" alt="SwiftTickets" class="brand-logo" />
           <div>
-            <h1 id="botTag">SwiftTickets</h1>
-            <div class="pill">Server access</div>
+            <strong>SwiftTickets</strong>
+            <small>Server selection</small>
           </div>
         </div>
-        <div class="stats">
-          <div><span>Servers</span><strong id="statServers">0</strong></div>
-          <div><span>Latency</span><strong id="statLatency">0ms</strong></div>
-          <div><span>Uptime</span><strong id="statUptime">0h</strong></div>
+        <div class="user-pill">
+          <span id="botTag">SwiftTickets</span>
         </div>
       </header>
 
-      <section class="toolbar">
-        <div class="search">
-          <input type="text" placeholder="Search servers" />
+      <section class="server-panel">
+        <div class="server-panel-head">
+          <h2>Logged in as <span class="accent">Operator</span></h2>
+          <p class="muted">Select a server. If SwiftTickets is not installed, use Invite.</p>
         </div>
-        <div class="actions">
-          <a class="btn ghost" href="/">Login</a>
-          <a class="btn primary" id="inviteBtn" href="#" target="_blank">Add to Server</a>
-        </div>
+        <div class="server-list" id="serverGrid"></div>
+        <footer class="server-footer">
+          <a class="link" href="/">Back to login</a>
+          <span class="muted">SwiftTickets © 2026</span>
+        </footer>
       </section>
-
-      <section class="server-section">
-        <div class="section-header">
-          <div>
-            <h2>Your Servers</h2>
-            <p class="muted">Installed servers can be managed immediately. If SwiftTickets is missing, use Invite.</p>
-          </div>
-          <div class="pill">Manage or Invite</div>
-        </div>
-        <section class="grid" id="serverGrid"></section>
-      </section>
-    </div>
+    </main>
 
     <script src="app.js"></script>
   </body>

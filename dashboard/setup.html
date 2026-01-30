@@ -4,94 +4,114 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>SwiftTickets - Setup</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
   </head>
-  <body>
+  <body class="shell">
     <div class="bg-glow"></div>
     <div class="noise"></div>
 
-    <div class="app">
-      <header class="topbar">
-        <div class="profile">
-          <div class="avatar" id="botAvatar">ST</div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <img src="/assets/logo.svg" alt="SwiftTickets" class="brand-logo" />
           <div>
-            <h1 id="botTag">SwiftTickets</h1>
-            <div class="pill">Setup Center</div>
+            <strong>SwiftTickets</strong>
+            <small>Setup</small>
           </div>
         </div>
-        <div class="stats">
-          <div><span>Servers</span><strong id="statServers">0</strong></div>
-          <div><span>Latency</span><strong id="statLatency">0ms</strong></div>
-          <div><span>Uptime</span><strong id="statUptime">0h</strong></div>
+
+        <div class="server-switch">
+          <div class="server-chip">
+            <span class="dot"></span>
+            <span id="selectedGuild">Select server</span>
+          </div>
+          <a class="link" href="/servers">Change</a>
         </div>
-      </header>
 
-      <nav class="tabs">
-        <a class="tab" href="servers.html">Servers</a>
-        <a class="tab active" href="setup.html">Setup</a>
-        <a class="tab" href="index.html">Overview</a>
-      </nav>
+        <nav class="menu">
+          <a class="menu-item" href="/dashboard">Overview</a>
+          <a class="menu-item active" href="/setup">Adjust</a>
+          <a class="menu-item" href="/servers">Servers</a>
+        </nav>
+      </aside>
 
-      <section class="config">
-        <div class="config-card">
-          <h2>Ticket Setup</h2>
-          <div class="field">
-            <label>Selected Server</label>
-            <div class="select" id="selectedGuild">None</div>
+      <main class="content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Adjust</p>
+            <h1>Settings & Controls</h1>
           </div>
-          <div class="field">
-            <label>Staff role</label>
-            <div class="select" id="staffRole">Not set</div>
+          <div class="user-pill">
+            <div class="avatar" id="botAvatar">ST</div>
+            <span id="botTag">SwiftTickets</span>
           </div>
-          <div class="field-row">
-            <div class="field">
-              <label>Open tickets</label>
-              <div class="select" id="statOpen">0</div>
+        </header>
+
+        <section class="panel">
+          <div class="panel-grid">
+            <div class="panel-card">
+              <h3>Ticket Setup</h3>
+              <label>Ticket Parent Category ID</label>
+              <input class="input" id="parentCategoryId" placeholder="1234567890" />
+              <label>Staff Role ID</label>
+              <input class="input" id="staffRoleId" placeholder="1234567890" />
+              <label>Timezone</label>
+              <input class="input" id="timezone" placeholder="UTC" />
+              <label>Category slots</label>
+              <input class="input" id="categorySlots" type="number" min="1" max="35" />
+              <div class="btn-row">
+                <button class="btn primary" id="saveSettingsBtn">Save changes</button>
+              </div>
             </div>
-            <div class="field">
-              <label>Closed tickets</label>
-              <div class="select" id="statClosed">0</div>
+
+            <div class="panel-card">
+              <h3>Automation & Safety</h3>
+              <label>Warn threshold</label>
+              <input class="input" id="warnThreshold" type="number" min="1" max="99" />
+              <label>Timeout minutes</label>
+              <input class="input" id="warnTimeout" type="number" min="1" max="1200" />
+              <div class="toggle">
+                <span>Smart replies</span>
+                <input class="toggle-input" id="toggleSmart" type="checkbox" />
+              </div>
+              <div class="toggle">
+                <span>AI suggestions</span>
+                <input class="toggle-input" id="toggleAi" type="checkbox" />
+              </div>
+              <div class="toggle">
+                <span>Auto priority detection</span>
+                <input class="toggle-input" id="togglePriority" type="checkbox" />
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <h3>Categories</h3>
+              <div class="chip-list" id="categoryList"></div>
+              <label>New category name</label>
+              <input class="input" id="newCategoryName" placeholder="Billing" />
+              <label>New category description</label>
+              <input class="input" id="newCategoryDescription" placeholder="Payments & invoices" />
+              <div class="btn-row">
+                <button class="btn primary" id="addCategoryBtn">Add category</button>
+              </div>
+            </div>
+
+            <div class="panel-card">
+              <h3>Post Panel to Channel</h3>
+              <label>Channel ID</label>
+              <input class="input" id="panelChannelId" placeholder="1234567890" />
+              <div class="btn-row">
+                <button class="btn primary" id="postPanelToChannelBtn">Post settings panel</button>
+                <button class="btn ghost" id="postPanelsetToChannelBtn">Post public panel</button>
+              </div>
             </div>
           </div>
-          <div class="btn-row">
-            <button class="btn primary">Save changes</button>
-            <button class="btn ghost">Post panel</button>
-          </div>
-        </div>
-
-        <div class="config-card">
-          <h2>Automation</h2>
-          <div class="toggle">
-            <span>Smart replies</span>
-            <div class="switch on"></div>
-          </div>
-          <div class="toggle">
-            <span>AI suggestions</span>
-            <div class="switch on"></div>
-          </div>
-          <div class="toggle">
-            <span>Auto priority detection</span>
-            <div class="switch"></div>
-          </div>
-          <div class="field">
-            <label>Staff members</label>
-            <div class="select" id="staffCount">0</div>
-          </div>
-        </div>
-
-        <div class="config-card">
-          <h2>Categories</h2>
-          <p class="muted">Live categories from Supabase.</p>
-          <div class="chip-list" id="categoryList"></div>
-          <div class="btn-row">
-            <button class="btn primary">Add category</button>
-            <button class="btn ghost">Manage categories</button>
-          </div>
-        </div>
-      </section>
+        </section>
+      </main>
     </div>
 
     <script src="app.js"></script>

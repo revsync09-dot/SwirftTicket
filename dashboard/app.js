@@ -1,17 +1,5 @@
 const API_BASE = '';
 
-const actions = {
-  startAuth() {
-    document.querySelector('#auth')?.scrollIntoView({ behavior: 'smooth' });
-  },
-  scrollSettings() {
-    document.querySelector('#dashboard')?.scrollIntoView({ behavior: 'smooth' });
-  },
-  inviteBot() {
-    alert('Invite flow will be handled by your backend.');
-  },
-};
-
 async function apiGet(path) {
   const res = await fetch(`${API_BASE}${path}`);
   if (!res.ok) throw new Error('Request failed');
@@ -28,67 +16,7 @@ async function apiPost(path, body) {
   return res.json();
 }
 
-async function loadDashboard() {
-  try {
-    const data = await apiGet('/api/dashboard-data');
-    const botTag = document.querySelector('#botTag');
-    const statServers = document.querySelector('#statServers');
-    const statLatency = document.querySelector('#statLatency');
-    const statUptime = document.querySelector('#statUptime');
-    const selectedGuild = document.querySelector('#selectedGuild');
-    const inviteBtn = document.querySelector('#inviteBtn');
-    const categoryList = document.querySelector('#categoryList');
-    const serverGrid = document.querySelector('#serverGrid');
-
-    if (botTag) botTag.textContent = data.botTag ?? 'SwiftTickets';
-    if (statServers) statServers.textContent = String(data.guilds?.length ?? 0);
-    if (statLatency) statLatency.textContent = `${data.latencyMs ?? 0}ms`;
-    if (statUptime) statUptime.textContent = data.uptime ?? 'online';
-    if (selectedGuild) selectedGuild.textContent = data.selectedGuild ?? 'None';
-    if (inviteBtn && data.inviteUrl) inviteBtn.href = data.inviteUrl;
-
-    if (categoryList) {
-      categoryList.innerHTML = '';
-      (data.categories ?? []).forEach((c) => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.textContent = c.name;
-        categoryList.appendChild(chip);
-      });
-    }
-
-    if (serverGrid) {
-      serverGrid.innerHTML = '';
-      (data.guilds ?? []).forEach((g) => {
-        const installed = g.status === 'installed';
-        const card = document.createElement('article');
-        card.className = `server-card ${installed ? 'active' : ''}`;
-        card.innerHTML = `
-          <div class="server-icon ${g.iconURL ? '' : 'mute'}">${g.name?.[0] ?? 'S'}</div>
-          <div class="server-info">
-            <div class="server-header">
-              <h3>${g.name}</h3>
-              <span class="status-badge ${installed ? 'online' : 'offline'}">
-                ${installed ? 'Installed' : 'Invite'}
-              </span>
-            </div>
-            <p>${installed ? 'SwiftTickets is live in this server.' : 'Invite SwiftTickets to manage this server.'}</p>
-            <div class="card-actions">
-              ${installed ? `<a class="chip-btn" href="/select/${g.id}">Manage</a>` : `<a class="chip-btn" href="/invite/${g.id}">Invite</a>`}
-            </div>
-          </div>
-        `;
-        serverGrid.appendChild(card);
-      });
-    }
-
-    if (data.selectedGuild && data.settings) {
-      hydrateSettings(data.selectedGuild, data.settings);
-    }
-  } catch (_) {}
-}
-
-function hydrateSettings(guildId, settings) {
+function hydrateSettings(settings) {
   const parentCategoryId = document.querySelector('#parentCategoryId');
   const staffRoleId = document.querySelector('#staffRoleId');
   const timezone = document.querySelector('#timezone');
@@ -110,9 +38,62 @@ function hydrateSettings(guildId, settings) {
   if (togglePriority) togglePriority.checked = Boolean(settings.enable_auto_priority ?? true);
 }
 
+async function loadDashboard() {
+  try {
+    const data = await apiGet('/api/dashboard-data');
+    const botTag = document.querySelector('#botTag');
+    const statServers = document.querySelector('#statServers');
+    const statLatency = document.querySelector('#statLatency');
+    const statUptime = document.querySelector('#statUptime');
+    const selectedGuild = document.querySelector('#selectedGuild');
+    const categoryList = document.querySelector('#categoryList');
+    const serverGrid = document.querySelector('#serverGrid');
+
+    if (botTag) botTag.textContent = data.botTag ?? 'SwiftTickets';
+    if (statServers) statServers.textContent = String(data.guilds?.length ?? 0);
+    if (statLatency) statLatency.textContent = `${data.latencyMs ?? 0}ms`;
+    if (statUptime) statUptime.textContent = data.uptime ?? 'online';
+    if (selectedGuild) selectedGuild.textContent = data.selectedGuild ?? 'Select server';
+
+    if (categoryList) {
+      categoryList.innerHTML = '';
+      (data.categories ?? []).forEach((c) => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.textContent = c.name;
+        categoryList.appendChild(chip);
+      });
+    }
+
+    if (serverGrid) {
+      serverGrid.innerHTML = '';
+      (data.guilds ?? []).forEach((g) => {
+        const installed = g.status === 'installed';
+        const row = document.createElement('div');
+        row.className = `server-row ${installed ? 'installed' : 'invite'}`;
+        row.innerHTML = `
+          <div class="server-meta">
+            <div class="server-icon ${g.iconURL ? '' : 'mute'}">${g.name?.[0] ?? 'S'}</div>
+            <div>
+              <h4>${g.name}</h4>
+              <span class="muted">${installed ? 'Installed' : 'Invite required'}</span>
+            </div>
+          </div>
+          <div class="server-action">
+            ${installed ? `<a class="server-btn" href="/select/${g.id}">Manage</a>` : `<a class="server-btn" href="/invite/${g.id}">Invite</a>`}
+          </div>
+        `;
+        serverGrid.appendChild(row);
+      });
+    }
+
+    if (data.settings) hydrateSettings(data.settings);
+  } catch (_) {}
+}
+
 async function saveSettings() {
   const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
-  if (!selectedGuild || selectedGuild === 'None') return;
+  if (!selectedGuild || selectedGuild === 'Select server') return;
   const payload = {
     guild_id: selectedGuild,
     ticket_parent_channel_id: document.querySelector('#parentCategoryId')?.value,
@@ -132,7 +113,7 @@ async function addCategory() {
   const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
   const name = document.querySelector('#newCategoryName')?.value;
   const description = document.querySelector('#newCategoryDescription')?.value;
-  if (!selectedGuild || selectedGuild === 'None' || !name) return;
+  if (!selectedGuild || selectedGuild === 'Select server' || !name) return;
   await apiPost('/api/categories', { guild_id: selectedGuild, name, description });
   await loadDashboard();
 }
@@ -140,7 +121,7 @@ async function addCategory() {
 async function postPanel(kind) {
   const selectedGuild = document.querySelector('#selectedGuild')?.textContent;
   const channelId = document.querySelector('#panelChannelId')?.value;
-  if (!selectedGuild || selectedGuild === 'None' || !channelId) return;
+  if (!selectedGuild || selectedGuild === 'Select server' || !channelId) return;
   if (kind === 'settings') {
     await apiPost('/api/post-panel', { guild_id: selectedGuild, channel_id: channelId });
   } else {
@@ -150,20 +131,7 @@ async function postPanel(kind) {
 
 loadDashboard();
 
-document.addEventListener('click', (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-  const action = target.getAttribute('data-action');
-  if (!action) return;
-  if (action === 'start-auth') return actions.startAuth();
-  if (action === 'scroll-settings') return actions.scrollSettings();
-  if (action === 'invite-bot') return actions.inviteBot();
-});
-
-document.querySelector('#reloadBtn')?.addEventListener('click', () => loadDashboard());
 document.querySelector('#saveSettingsBtn')?.addEventListener('click', () => saveSettings());
 document.querySelector('#addCategoryBtn')?.addEventListener('click', () => addCategory());
-document.querySelector('#postPanelBtn')?.addEventListener('click', () => postPanel('settings'));
-document.querySelector('#postPublicPanelBtn')?.addEventListener('click', () => postPanel('public'));
 document.querySelector('#postPanelToChannelBtn')?.addEventListener('click', () => postPanel('settings'));
 document.querySelector('#postPanelsetToChannelBtn')?.addEventListener('click', () => postPanel('public'));
