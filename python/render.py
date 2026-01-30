@@ -95,13 +95,13 @@ def render_ticket_message(ticket: dict, creator_mention: str, timezone: str, mod
     # Buttons
     buttons = []
     if ticket["status"] == "OPEN":
-        buttons.append(button(custom_id=f"ticket:claim:{ticket['id']}", emoji={"id": "1466560103216971970"}, style=2))
+        buttons.append(button(custom_id=f"ticket:claim:{ticket['id']}", emoji={"name": "🛠️"}, style=2))
     elif ticket["status"] == "CLAIMED":
-        buttons.append(button(custom_id=f"ticket:close:{ticket['id']}", emoji={"id": "1466560320800559225"}, style=2))
-        buttons.append(button(custom_id=f"ticket:transcript:{ticket['id']}", emoji={"id": "1466560422592254068"}, style=2))
+        buttons.append(button(custom_id=f"ticket:close:{ticket['id']}", emoji={"name": "🔒"}, style=2))
+        buttons.append(button(custom_id=f"ticket:transcript:{ticket['id']}", emoji={"name": "📄"}, style=2))
     elif ticket["status"] == "CLOSED":
-        buttons.append(button(custom_id=f"ticket:transcript:{ticket['id']}", emoji={"id": "1466560422592254068"}, style=2))
-        buttons.append(button(custom_id=f"ticket:reopen:{ticket['id']}", emoji={"id": "1466560213145358376"}, style=2))
+        buttons.append(button(custom_id=f"ticket:transcript:{ticket['id']}", emoji={"name": "📄"}, style=2))
+        buttons.append(button(custom_id=f"ticket:reopen:{ticket['id']}", emoji={"name": "♻️"}, style=2))
 
     buttons.append(button(custom_id=f"ticket:link:{ticket['id']}", style=2, label="Link"))
     components.extend([separator(), action_row(buttons)])

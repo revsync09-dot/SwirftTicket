@@ -275,6 +275,9 @@ async def ticket_panelset(interaction: discord.Interaction, channel: discord.Tex
 @app_commands.describe(user="Target user")
 async def info(interaction: discord.Interaction, user: discord.User | None = None):
     target = user or interaction.user
+    if not config.discord_app_id or not str(config.discord_app_id).isdigit():
+        await send_interaction_message(interaction, build_notice("error", "Missing App ID", "Set DISCORD_APP_ID in the environment."), ephemeral=True)
+        return
     settings = await repo.get_guild_settings(str(interaction.guild_id))
     if not settings:
         await send_interaction_message(interaction, build_notice("error", "Not configured", "Run /ticket setup first."), ephemeral=True)
