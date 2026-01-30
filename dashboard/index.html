@@ -1,0 +1,106 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SwiftTickets Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="bg-glow"></div>
+    <div class="noise"></div>
+
+    <div class="app">
+      <header class="topbar">
+        <div class="profile">
+          <div class="avatar" id="botAvatar">ST</div>
+          <div>
+            <h1 id="botTag">SwiftTickets</h1>
+            <div class="pill">Premium Support Suite</div>
+          </div>
+        </div>
+        <div class="stats">
+          <div><span>Servers</span><strong id="statServers">0</strong></div>
+          <div><span>Latency</span><strong id="statLatency">0ms</strong></div>
+          <div><span>Uptime</span><strong id="statUptime">0h</strong></div>
+        </div>
+      </header>
+
+      <nav class="tabs">
+        <a class="tab active" href="index.html">Overview</a>
+        <a class="tab" href="servers.html">Servers</a>
+        <a class="tab" href="setup.html">Setup</a>
+        <button class="tab">Tickets</button>
+        <button class="tab">Analytics</button>
+        <button class="tab">Automation</button>
+      </nav>
+
+      <section class="toolbar">
+        <div class="search">
+          <input type="text" placeholder="Search servers, tickets, users" />
+        </div>
+        <div class="actions">
+          <a class="btn ghost" id="inviteBtn" href="#" target="_blank">Add to Server</a>
+          <button class="btn primary" id="reloadBtn">Reload</button>
+        </div>
+      </section>
+
+      <section class="grid" id="serverGrid"></section>
+
+      <section class="config">
+        <div class="config-card">
+          <h2>Ticket Setup</h2>
+          <div class="field">
+            <label>Selected Server</label>
+            <div class="select" id="selectedGuild">None</div>
+          </div>
+          <div class="field">
+            <label>Staff role</label>
+            <div class="select" id="staffRole">Not set</div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Open tickets</label>
+              <div class="select" id="statOpen">0</div>
+            </div>
+            <div class="field">
+              <label>Closed tickets</label>
+              <div class="select" id="statClosed">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h2>Automation</h2>
+          <div class="toggle">
+            <span>Smart replies</span>
+            <div class="switch on"></div>
+          </div>
+          <div class="toggle">
+            <span>AI suggestions</span>
+            <div class="switch on"></div>
+          </div>
+          <div class="toggle">
+            <span>Auto priority detection</span>
+            <div class="switch"></div>
+          </div>
+          <div class="field">
+            <label>Staff members</label>
+            <div class="select" id="staffCount">0</div>
+          </div>
+        </div>
+
+        <div class="config-card">
+          <h2>Categories</h2>
+          <p class="muted">Live categories from Supabase.</p>
+          <div class="chip-list" id="categoryList"></div>
+        </div>
+      </section>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
