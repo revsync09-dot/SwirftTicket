@@ -39,10 +39,8 @@ def require_login():
     token = session.get("access_token")
     if not token:
         return None, None, None
-    guilds = session.get("guilds")
-    if not guilds:
-        guilds = discord_get("/users/@me/guilds", token).json()
-        session["guilds"] = guilds
+    # Avoid storing large guild lists in the session cookie
+    guilds = discord_get("/users/@me/guilds", token).json()
     return token, session.get("user"), guilds
 
 
@@ -127,11 +125,10 @@ def auth_callback():
     if token_res.status_code != 200:
         return f"Token exchange failed: {token_res.text}", 400
     token = token_res.json().get("access_token")
-    user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": f"Bearer {token}"}).json()
-    guilds = requests.get("https://discord.com/api/users/@me/guilds", headers={"Authorization": f"Bearer {token}"}).json()
     session["access_token"] = token
-    session["user"] = user
-    session["guilds"] = guilds
+    # Store only minimal user info to keep cookie small
+    user = requests.get("https://discord.com/api/users/@me", headers={"Authorization": f"Bearer {token}"}).json()
+    session["user"] = {"id": user.get("id"), "username": user.get("username")}
     return redirect("/servers")
 
 
