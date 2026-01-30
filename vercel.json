@@ -1,10 +1,6 @@
 {
   "version": 2,
-  "functions": {
-    "api/index.py": { "includeFiles": "dashboard/**,python/**" },
-    "api/app.py": { "includeFiles": "dashboard/**,python/**" }
-  },
-  "routes": [
-    { "src": "/(.*)", "dest": "api/index.py" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
   ]
 }
