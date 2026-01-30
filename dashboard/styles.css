@@ -1,14 +1,17 @@
 :root {
   --bg: #0b0d14;
   --panel: #121826;
-  --card: #1b2233;
-  --card-strong: #20293d;
+  --card: #1a2233;
+  --card-strong: #1f2a3d;
   --muted: #aab4c7;
   --text: #f7f7fb;
   --accent: #6c5cff;
   --accent-2: #2c89ff;
+  --accent-3: #14f1d9;
   --outline: rgba(255, 255, 255, 0.06);
-  --shadow: 0 30px 80px rgba(4, 6, 12, 0.6);
+  --shadow: 0 28px 70px rgba(6, 8, 16, 0.65);
+  --shadow-soft: 0 12px 30px rgba(10, 14, 24, 0.55);
+  --glow: 0 0 0 1px rgba(108, 92, 255, 0.35), 0 12px 40px rgba(108, 92, 255, 0.35);
   --radius: 18px;
   --font: "Outfit", system-ui, sans-serif;
 }
@@ -66,7 +69,7 @@ body {
   border-right: 1px solid var(--outline);
   padding: 28px 20px;
   display: grid;
-  gap: 20px;
+  gap: 22px;
 }
 
 .brand {
@@ -128,8 +131,8 @@ body {
 .menu-item.active,
 .menu-item:hover {
   color: var(--text);
-  border-color: rgba(108, 92, 255, 0.4);
-  background: rgba(108, 92, 255, 0.12);
+  border-color: rgba(108, 92, 255, 0.5);
+  background: linear-gradient(90deg, rgba(108, 92, 255, 0.18), rgba(44, 137, 255, 0.08));
 }
 
 .sidebar-card {
@@ -170,6 +173,7 @@ body {
   padding: 8px 12px;
   border-radius: 999px;
   font-weight: 600;
+  box-shadow: var(--shadow-soft);
 }
 
 .avatar {
@@ -196,7 +200,7 @@ body {
   padding: 18px;
   display: grid;
   gap: 10px;
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .panel {
@@ -204,6 +208,7 @@ body {
   border: 1px solid var(--outline);
   border-radius: 18px;
   padding: 18px;
+  box-shadow: var(--shadow-soft);
 }
 
 .panel-header { margin-bottom: 12px; }
@@ -220,15 +225,23 @@ body {
   border-radius: 16px;
   padding: 16px;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .input {
-  background: rgba(10, 14, 22, 0.8);
-  border: 1px solid rgba(108, 92, 255, 0.25);
-  padding: 10px 12px;
-  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(14, 18, 30, 0.95), rgba(10, 13, 22, 0.95));
+  border: 1px solid rgba(108, 92, 255, 0.3);
+  padding: 12px 14px;
+  border-radius: 14px;
   color: var(--text);
+  font-weight: 600;
+  outline: none;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.input:focus {
+  border-color: rgba(108, 92, 255, 0.7);
+  box-shadow: var(--glow);
 }
 
 .toggle {
@@ -237,17 +250,50 @@ body {
   align-items: center;
   background: rgba(10, 14, 22, 0.8);
   border: 1px solid var(--outline);
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
 }
 
-.toggle-input { width: 46px; height: 22px; accent-color: var(--accent); }
+.toggle-input {
+  appearance: none;
+  width: 46px;
+  height: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  position: relative;
+  outline: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.toggle-input::after {
+  content: "";
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #f8f7ff;
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  transition: all 0.2s ease;
+}
+
+.toggle-input:checked {
+  background: linear-gradient(135deg, #6c5cff, #2c89ff);
+  border-color: rgba(108, 92, 255, 0.5);
+  box-shadow: var(--glow);
+}
+
+.toggle-input:checked::after {
+  left: 24px;
+}
 
 .btn {
   padding: 10px 14px;
-  border-radius: 12px;
-  border: 1px solid var(--outline);
-  background: transparent;
+  border-radius: 14px;
+  border: 1px solid rgba(108, 92, 255, 0.3);
+  background: rgba(14, 18, 30, 0.8);
   color: var(--text);
   text-decoration: none;
   display: inline-flex;
@@ -255,14 +301,19 @@ body {
   justify-content: center;
   font-weight: 600;
   cursor: pointer;
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border 0.2s ease;
 }
 
 .btn.primary {
   background: linear-gradient(135deg, #6c5cff, #2c89ff);
   border: none;
+  box-shadow: var(--glow);
 }
 
 .btn.ghost { background: rgba(15, 19, 29, 0.7); }
+
+.btn:hover { transform: translateY(-1px); }
 
 .btn-row { display: flex; flex-wrap: wrap; gap: 10px; }
 
@@ -319,7 +370,7 @@ body {
   align-items: center;
   padding: 12px;
   border-radius: 14px;
-  background: rgba(20, 24, 36, 0.9);
+  background: rgba(18, 22, 34, 0.9);
   border: 1px solid var(--outline);
 }
 
@@ -340,7 +391,7 @@ body {
 .server-action .server-btn {
   padding: 6px 12px;
   border-radius: 10px;
-  border: 1px solid rgba(108, 92, 255, 0.4);
+  border: 1px solid rgba(108, 92, 255, 0.5);
   color: var(--text);
   text-decoration: none;
   font-weight: 600;
