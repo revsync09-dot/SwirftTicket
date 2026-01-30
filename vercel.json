@@ -2,10 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "includeFiles": [
-        "dashboard/**",
-        "python/**"
-      ]
+      "includeFiles": "dashboard/**,python/**"
     }
   },
   "routes": [
